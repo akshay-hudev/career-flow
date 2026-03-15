@@ -25,7 +25,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r backend/requirements.txt
-          pip install "psycopg[binary]" "pydantic[email]" email-validator
           python -m spacy download en_core_web_sm
 
       - name: Run tests
