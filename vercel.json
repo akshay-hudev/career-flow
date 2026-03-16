@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://career-platform-rtdk.onrender.com/api/:path*"
+    }
+  ]
+}
