@@ -1,17 +1,8 @@
 import io
 import re
 import pdfplumber
-import spacy
 from typing import Optional
 from backend.schemas.schemas import ParsedResume
-
-# Load spaCy model (run: python -m spacy download en_core_web_sm)
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    import subprocess
-    subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
-    nlp = spacy.load("en_core_web_sm")
 
 
 # Common tech skills to extract (expand as needed)
@@ -82,12 +73,21 @@ def extract_education(text: str) -> list[str]:
 
 
 def extract_companies(text: str) -> list[str]:
-    """Use spaCy NER to extract organization names (likely companies)."""
-    doc = nlp(text[:5000])  # limit to first 5000 chars for speed
-    companies = [ent.text.strip() for ent in doc.ents if ent.label_ == "ORG"]
-    # Filter noise
-    companies = [c for c in companies if 3 < len(c) < 60]
-    return list(set(companies))[:10]
+    """Extract likely company names using pattern matching."""
+    company_keywords = [
+        "technologies", "tech", "systems", "solutions", "software",
+        "consulting", "services", "labs", "studio", "ai", "digital",
+        "innovations", "ventures", "pvt", "ltd", "inc", "corp"
+    ]
+    lines = text.split('\n')
+    companies = []
+    for line in lines:
+        line = line.strip()
+        line_lower = line.lower()
+        if any(kw in line_lower for kw in company_keywords):
+            if 3 < len(line) < 60 and not line.startswith('•'):
+                companies.append(line[:60])
+    return list(set(companies))[:8]
 
 
 def extract_summary(text: str) -> str:

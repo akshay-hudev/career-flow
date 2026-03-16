@@ -10,10 +10,10 @@ python-multipart
 httpx
 redis
 pdfplumber
-spacy
-sentence-transformers
 google-generativeai
 python-dotenv
 alembic
 langgraph
 langchain-core
+numpy
+scikit-learn

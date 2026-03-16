@@ -1,17 +1,29 @@
 import numpy as np
-from sentence_transformers import SentenceTransformer, util
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity as sklearn_cosine
 from typing import Optional
 from backend.services.resume_parser import TECH_SKILLS
 import re
 
-# Load model once at startup (cached in memory)
-_model: Optional[SentenceTransformer] = None
+_vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
 
-def get_model() -> SentenceTransformer:
-    global _model
-    if _model is None:
-        _model = SentenceTransformer('all-MiniLM-L6-v2')
-    return _model
+def get_embedding(text: str) -> list[float]:
+    """Generate TF-IDF vector for a text string."""
+    matrix = _vectorizer.fit_transform([text])
+    return matrix.toarray()[0].tolist()
+
+def cosine_similarity_score(emb1: list[float], emb2: list[float]) -> float:
+    a = np.array(emb1).reshape(1, -1)
+    b = np.array(emb2).reshape(1, -1)
+    # Pad to same length
+    max_len = max(a.shape[1], b.shape[1])
+    a = np.pad(a, ((0,0),(0, max_len - a.shape[1])))
+    b = np.pad(b, ((0,0),(0, max_len - b.shape[1])))
+    score = sklearn_cosine(a, b)[0][0]
+    return round(float(score) * 100, 2)
+
+def get_model():
+    return _vectorizer
 
 
 def get_embedding(text: str) -> list[float]:
@@ -69,30 +81,14 @@ def compute_match(
     }
 
 
-def rank_jobs(
-    resume_text: str,
-    resume_embedding: list[float],
-    jobs: list[dict],
-) -> list[dict]:
-    """
-    Score and rank a list of job dicts by match score.
-    Each job dict must have a 'description' field.
-    Returns jobs sorted by match_score descending.
-    """
-    model = get_model()
-    descriptions = [j.get("description", "") for j in jobs]
-
-    if not any(descriptions):
-        return jobs
-
-    job_embeddings = model.encode(descriptions, convert_to_tensor=False, batch_size=32)
-    resume_emb = np.array(resume_embedding)
-
-    scored_jobs = []
-    for i, (job, job_emb) in enumerate(zip(jobs, job_embeddings)):
-        score = cosine_similarity_score(resume_emb.tolist(), job_emb.tolist())
-        job_copy = dict(job)
-        job_copy["match_score"] = score
-        scored_jobs.append(job_copy)
-
-    return sorted(scored_jobs, key=lambda x: x["match_score"], reverse=True)
+def rank_jobs(resume_text, resume_embedding, jobs):
+    if not jobs:
+        return []
+    for job in jobs:
+        desc = job.get("description", "")
+        if desc:
+            job_emb = get_embedding(desc)
+            job["match_score"] = cosine_similarity_score(resume_embedding, job_emb)
+        else:
+            job["match_score"] = 0.0
+    return sorted(jobs, key=lambda x: x["match_score"], reverse=True)
