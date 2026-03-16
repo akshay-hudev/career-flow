@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: 'https://career-platform-rtdk.onrender.com/',
   headers: { 'Content-Type': 'application/json' },
 })
 
