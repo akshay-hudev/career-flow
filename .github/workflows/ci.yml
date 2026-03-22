@@ -30,7 +30,6 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL: sqlite:///./test.db
-          REDIS_URL: redis://localhost:6379/0
           GEMINI_API_KEY: test-key
           ADZUNA_APP_ID: ""
           ADZUNA_APP_KEY: ""

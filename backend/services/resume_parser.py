@@ -18,7 +18,7 @@ except OSError:
 TECH_SKILLS = {
     "python", "java", "javascript", "typescript", "react", "node.js", "nodejs",
     "flask", "fastapi", "django", "spring", "spring boot", "sql", "postgresql",
-    "mysql", "mongodb", "redis", "docker", "kubernetes", "git", "github",
+    "mysql", "mongodb", "docker", "kubernetes", "git", "github",
     "aws", "gcp", "azure", "tensorflow", "pytorch", "scikit-learn", "pandas",
     "numpy", "opencv", "langchain", "langgraph", "rest", "graphql", "html",
     "css", "tailwind", "c++", "c", "go", "rust", "linux", "bash",

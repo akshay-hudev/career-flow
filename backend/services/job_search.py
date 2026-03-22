@@ -1,45 +1,9 @@
 import httpx
-import redis
-import json
-import hashlib
 from typing import Optional
 from backend.config import settings
 
-# Redis client (optional — falls back gracefully if Redis not running)
-try:
-    _redis = redis.Redis.from_url(settings.REDIS_URL, decode_responses=True)
-    _redis.ping()
-    REDIS_AVAILABLE = True
-except Exception:
-    _redis = None
-    REDIS_AVAILABLE = False
-
-CACHE_TTL = 3600  # 1 hour
-ADZUNA_BASE = "https://api.adzuna.com/v1/api/jobs/in/search"  # 'in' = India
-
-
-def _cache_key(query: str, location: str, page: int) -> str:
-    raw = f"{query}:{location}:{page}"
-    return f"jobsearch:{hashlib.md5(raw.encode()).hexdigest()}"
-
-
-def _get_cached(key: str) -> Optional[list]:
-    if not REDIS_AVAILABLE:
-        return None
-    try:
-        data = _redis.get(key)
-        return json.loads(data) if data else None
-    except Exception:
-        return None
-
-
-def _set_cached(key: str, data: list) -> None:
-    if not REDIS_AVAILABLE:
-        return
-    try:
-        _redis.setex(key, CACHE_TTL, json.dumps(data))
-    except Exception:
-        pass
+CACHE_TTL = 3600  # not used anymore (can remove later)
+ADZUNA_BASE = "https://api.adzuna.com/v1/api/jobs/in/search"
 
 
 def _normalize_job(raw: dict) -> dict:
@@ -64,17 +28,11 @@ async def search_jobs(
     num_results: int = 20,
 ) -> list[dict]:
     """
-    Search jobs via Adzuna API with Redis caching.
-    Falls back to empty list if API keys are missing.
+    Search jobs via Adzuna API (no caching).
+    Falls back to mock data if API keys are missing.
     """
     page = 1
     results_per_page = min(num_results, 50)
-    cache_key = _cache_key(query, location, page)
-
-    # Check cache first
-    cached = _get_cached(cache_key)
-    if cached is not None:
-        return cached[:num_results]
 
     if not settings.ADZUNA_APP_ID or not settings.ADZUNA_APP_KEY:
         return _mock_jobs(query, location, num_results)
@@ -94,7 +52,6 @@ async def search_jobs(
             response.raise_for_status()
             data = response.json()
             jobs = [_normalize_job(j) for j in data.get("results", [])]
-            _set_cached(cache_key, jobs)
             return jobs[:num_results]
     except Exception as e:
         print(f"[JobSearch] Adzuna API error: {e}")

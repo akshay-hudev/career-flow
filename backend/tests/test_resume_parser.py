@@ -66,7 +66,7 @@ class TestExtractEducation:
 class TestATSScore:
     def test_full_resume_scores_high(self):
         parsed = ParsedResume(
-            skills=["Python", "React", "Docker", "PostgreSQL", "FastAPI", "Git", "AWS", "Redis", "Java", "Flask"],
+            skills=["Python", "React", "Docker", "PostgreSQL", "FastAPI", "Git", "AWS", "Java", "Flask"],
             experience_years=3.0,
             education=["B.E. in Computer Science, RVITM 2023-2027"],
             companies=["Infosys", "Capabl AI"],

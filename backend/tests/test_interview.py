@@ -147,7 +147,7 @@ class TestEvaluateAnswer:
             m.generate_content.side_effect = Exception("LLM down")
             res = client.post("/api/v1/interview/evaluate", json={
                 "question": "Describe a challenging project.",
-                "user_answer": "I worked on a distributed system that handled real-time data processing for millions of users using Kafka and Redis.",
+                "user_answer": "I worked on a distributed system that handled real-time data processing for millions of users using Kafka.",
                 "job_title": "Backend Engineer",
                 "ideal_answer_framework": "STAR format.",
             })
