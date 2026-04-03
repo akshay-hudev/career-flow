@@ -33,9 +33,11 @@ def get_embedding(text: str) -> list[float]:
 
 
 def cosine_similarity_score(emb1: list[float], emb2: list[float]) -> float:
-    """Compute cosine similarity between two embeddings. Returns 0-100."""
     a = np.array(emb1)
     b = np.array(emb2)
+    max_len = max(len(a), len(b))
+    a = np.pad(a, (0, max_len - len(a)))
+    b = np.pad(b, (0, max_len - len(b)))
     score = np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-8)
     return round(float(score) * 100, 2)
 
@@ -51,27 +53,18 @@ def extract_skills_from_text(text: str) -> set[str]:
     return found
 
 
-def compute_match(
-    resume_text: str,
-    resume_embedding: list[float],
-    job_description: str,
-    job_index: int = 0,
-) -> dict:
-    """
-    Compute full match analysis between a resume and a job description.
-
-    Returns:
-        index, score (0-100), matched_skills, skill_gaps
-    """
-    job_embedding = get_embedding(job_description)
-    score = cosine_similarity_score(resume_embedding, job_embedding)
-
+def compute_match(resume_text, resume_embedding, job_description, job_index=0):
+    # Fit vectorizer on both texts together so vocabulary matches
+    combined = _vectorizer.fit_transform([resume_text[:3000], job_description])
+    resume_emb = combined[0].toarray()[0].tolist()
+    job_emb = combined[1].toarray()[0].tolist()
+    score = cosine_similarity_score(resume_emb, job_emb)
+    
     resume_skills = extract_skills_from_text(resume_text)
     job_skills = extract_skills_from_text(job_description)
-
     matched = sorted(resume_skills & job_skills)
     gaps = sorted(job_skills - resume_skills)
-
+    
     return {
         "index": job_index,
         "score": score,
