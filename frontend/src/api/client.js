@@ -31,8 +31,6 @@ export const registerUser = (data) => api.post('/auth/register', data)
 export const loginUser = (data) => api.post('/auth/login', data)
 
 // ── Users ────────────────────────────────────────────────────────────────────
-export const createUser = (data) => api.post('/users/', data)
-export const getUser = (userId) => api.get(`/users/${userId}`)
 
 // ── Resume ───────────────────────────────────────────────────────────────────
 export const uploadResume = (file, userId) => {
@@ -43,7 +41,6 @@ export const uploadResume = (file, userId) => {
   })
 }
 export const listResumes = (userId) => api.get(`/resume/${userId}/list`)
-export const getResume = (resumeId) => api.get(`/resume/${resumeId}`)
 export const deleteResume = (resumeId) => api.delete(`/resume/${resumeId}`)
 
 // ── Jobs ─────────────────────────────────────────────────────────────────────
@@ -62,21 +59,10 @@ export const updateJobStatus = (jobId, status, notes = null) =>
 export const deleteSavedJob = (jobId) => api.delete(`/jobs/saved/${jobId}`)
 
 // ── Match ────────────────────────────────────────────────────────────────────
-export const scoreMatch = (resumeId, jobDescriptions) =>
-  api.post('/match/score', { resume_id: resumeId, job_descriptions: jobDescriptions })
 export const getCareerAdvice = (resumeId, jobTitle, jobDescription) =>
   api.post('/match/advice', { resume_id: resumeId, job_title: jobTitle, job_description: jobDescription })
 
 // ── Agent ────────────────────────────────────────────────────────────────────
-export const runCareerAgent = (file, jobQuery, location = 'India') => {
-  const form = new FormData()
-  form.append('file', file)
-  return api.post(
-    `/agent/run?job_query=${encodeURIComponent(jobQuery)}&location=${encodeURIComponent(location)}`,
-    form,
-    { headers: { 'Content-Type': 'multipart/form-data' } }
-  )
-}
 
 // ── Interview ────────────────────────────────────────────────────────────────
 export const generateQuestions = (resumeId, jobTitle, jobDescription, questionType, count) =>
@@ -96,4 +82,3 @@ export const evaluateAnswer = (question, userAnswer, jobTitle, idealFramework) =
     ideal_answer_framework: idealFramework,
   })
 
-export default api
