@@ -2,12 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir fastapi uvicorn sqlalchemy "psycopg[binary]" pydantic pydantic-settings python-multipart httpx redis pdfplumber spacy sentence-transformers google-generativeai python-dotenv alembic langgraph langchain-core "pydantic[email]" email-validator
+# Build context is the REPO ROOT (see docker-compose.yml `context: .` and
+# railway.toml `dockerfilePath = "backend/Dockerfile"`). The app imports
+# `backend.*`, so the code must live under /app/backend for uvicorn to resolve it.
+COPY backend/requirements.txt ./backend/requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt
 
-RUN python -m spacy download en_core_web_sm
-
-COPY . .
+COPY backend/ ./backend/
 
 EXPOSE 8000
 

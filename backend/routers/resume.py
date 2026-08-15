@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
 
+from backend.database import get_db
 from backend.dependencies import get_current_user
 from backend.models.models import Resume, User
 from backend.schemas.schemas import ResumeOut
@@ -16,12 +17,10 @@ router = APIRouter(prefix="/api/v1/resume", tags=["Resume"])
 async def upload_resume(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),  # ADD THIS
+    current_user: User = Depends(get_current_user),
 ):
-    user_id = current_user.id  # use this instead of query param
-    """
-    Upload a PDF resume. Returns parsed data, ATS score, and extracted skills.
-    """
+    """Upload a PDF resume. Returns parsed data, ATS score, and extracted skills."""
+    user_id = current_user.id
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 

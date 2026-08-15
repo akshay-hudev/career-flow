@@ -6,6 +6,7 @@ from backend.schemas.schemas import UserRegister, UserLogin, Token, UserOut
 from backend.services.auth_service import (
     hash_password, authenticate_user, create_access_token
 )
+from backend.dependencies import get_current_user
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
@@ -44,8 +45,5 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
 
 
 @router.get("/me", response_model=UserOut)
-def me(db: Session = Depends(get_db), token: str = None):
-    from backend.dependencies import get_current_user
-    from fastapi import Depends
-    # handled via dependency in other routes
-    pass
+def me(current_user: User = Depends(get_current_user)):
+    return current_user

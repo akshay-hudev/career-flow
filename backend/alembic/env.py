@@ -4,8 +4,9 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-# Make sure backend package is importable
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# Make sure the `backend` package is importable: insert the REPO ROOT
+# (env.py is at <root>/backend/alembic/env.py, so go up two levels).
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from backend.database import Base
 from backend.models.models import User, Resume, SavedJob, JobSearch  # noqa: F401

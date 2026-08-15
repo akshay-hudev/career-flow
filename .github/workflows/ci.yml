@@ -24,9 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-            pip install -r backend/requirements.txt
-            pip install "psycopg[binary]" "pydantic[email]" email-validator
-            python -m spacy download en_core_web_sm
+          pip install -r backend/requirements.txt
       - name: Run tests
         env:
           DATABASE_URL: sqlite:///./test.db
@@ -73,7 +71,7 @@ jobs:
 
       - name: Build backend Docker image
         run: |
-          docker build -t career-platform-backend ./backend
+          docker build -f backend/Dockerfile -t career-platform-backend .
 
   # ── Deploy to Railway (optional) ─────────────────────────────────────────────
   # Uncomment when you have RAILWAY_TOKEN in GitHub secrets

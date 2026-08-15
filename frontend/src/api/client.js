@@ -1,7 +1,11 @@
 import axios from 'axios'
 
+// Use VITE_API_URL if provided (e.g. in production), otherwise fall back to
+// the Vite dev proxy / same-origin '/api/v1'. Trailing slashes are stripped.
+const API_ROOT = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')
+
 const api = axios.create({
-  baseURL: 'https://career-platform-rtdk.onrender.com/api/v1',
+  baseURL: API_ROOT ? `${API_ROOT}/api/v1` : '/api/v1',
   headers: { 'Content-Type': 'application/json' },
 })
 

@@ -15,7 +15,7 @@ from langgraph.graph.message import add_messages
 import asyncio
 
 from backend.services.resume_parser import parse_resume
-from backend.services.semantic_matcher import get_embedding, rank_jobs
+from backend.services.semantic_matcher import get_embedding, rank_jobs, compute_match
 from backend.services.job_search import search_jobs
 from backend.services.llm_service import generate_career_advice, generate_resume_summary
 
@@ -124,10 +124,6 @@ async def node_generate_advice(state: CareerAgentState) -> CareerAgentState:
         resume_skills = parsed.get("skills", [])
         job_desc = top_job.get("description", "")
 
-        # Simple skill gap from top job
-        from backend.services.semantic_matcher import (
-            extract_skills_from_text, compute_match
-        )
         match = compute_match(
             resume_text=state["raw_text"],
             resume_embedding=state["embedding"],

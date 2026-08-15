@@ -5,6 +5,8 @@ from sqlalchemy.orm import sessionmaker
 
 from backend.main import app
 from backend.database import Base, get_db
+from backend.dependencies import get_current_user
+from backend.models.models import User
 
 # Use SQLite in-memory for tests — no PostgreSQL needed
 TEST_DATABASE_URL = "sqlite:///./test.db"
@@ -17,6 +19,26 @@ def override_get_db():
     db = TestingSessionLocal()
     try:
         yield db
+    finally:
+        db.close()
+
+
+def override_get_current_user():
+    """Auth bypass for tests: return a persisted test user, creating one if needed.
+
+    The resume-upload endpoint depends on get_current_user and looks the user up
+    by id, so the returned user must actually exist in the test database.
+    """
+    db = TestingSessionLocal()
+    try:
+        user = db.query(User).filter(User.email == "test@example.com").first()
+        if not user:
+            user = User(email="test@example.com", name="Test User")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        db.expunge(user)
+        return user
     finally:
         db.close()
 
@@ -43,8 +65,9 @@ def db():
 
 @pytest.fixture()
 def client():
-    """FastAPI test client with DB override."""
+    """FastAPI test client with DB + auth overrides."""
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = override_get_current_user
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

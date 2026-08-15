@@ -1,45 +1,36 @@
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity as sklearn_cosine
-from typing import Optional
 from backend.services.resume_parser import TECH_SKILLS
 import re
 
 _vectorizer = TfidfVectorizer(stop_words='english', max_features=5000)
 
-def get_embedding(text: str) -> list[float]:
-    """Generate TF-IDF vector for a text string."""
-    matrix = _vectorizer.fit_transform([text])
-    return matrix.toarray()[0].tolist()
-
-def cosine_similarity_score(emb1: list[float], emb2: list[float]) -> float:
-    a = np.array(emb1).reshape(1, -1)
-    b = np.array(emb2).reshape(1, -1)
-    # Pad to same length
-    max_len = max(a.shape[1], b.shape[1])
-    a = np.pad(a, ((0,0),(0, max_len - a.shape[1])))
-    b = np.pad(b, ((0,0),(0, max_len - b.shape[1])))
-    score = sklearn_cosine(a, b)[0][0]
-    return round(float(score) * 100, 2)
-
-def get_model():
-    return _vectorizer
-
 
 def get_embedding(text: str) -> list[float]:
-    """Generate TF-IDF vector for a text string."""
-    matrix = _vectorizer.fit_transform([text])
-    return matrix.toarray()[0].tolist()
+    """Generate a TF-IDF vector for a text string."""
+    try:
+        matrix = _vectorizer.fit_transform([text])
+        return matrix.toarray()[0].tolist()
+    except ValueError:
+        # Empty vocabulary — text was empty or only stop-words/punctuation.
+        return []
 
 
 def cosine_similarity_score(emb1: list[float], emb2: list[float]) -> float:
-    a = np.array(emb1)
-    b = np.array(emb2)
+    a = np.array(emb1, dtype=float)
+    b = np.array(emb2, dtype=float)
+    if a.size == 0 or b.size == 0:
+        return 0.0
+    # Pad to the same length so vectors of different vocab sizes are comparable.
     max_len = max(len(a), len(b))
     a = np.pad(a, (0, max_len - len(a)))
     b = np.pad(b, (0, max_len - len(b)))
     score = np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b) + 1e-8)
     return round(float(score) * 100, 2)
+
+
+def get_model():
+    return _vectorizer
 
 
 def extract_skills_from_text(text: str) -> set[str]:

@@ -47,9 +47,8 @@ docker-compose up postgres redis -d
 
 ### 3. Run backend
 ```bash
-cd backend
-pip install -r requirements.txt
-python -m spacy download en_core_web_sm
+# Run from the PROJECT ROOT — the app imports `backend.*`, so it must not be run from inside backend/
+pip install -r backend/requirements.txt
 uvicorn backend.main:app --reload
 ```
 
