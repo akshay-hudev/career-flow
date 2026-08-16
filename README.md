@@ -11,7 +11,7 @@ A production-grade career assistant with semantic job matching, resume analysis,
 | Database | PostgreSQL + SQLAlchemy ORM |
 | Cache | Redis (job search results, TTL 1hr) |
 | NLP | spaCy (NER) + sentence-transformers (embeddings) |
-| AI | Google Gemini 1.5 Flash |
+| AI | Google Gemini (configurable via `GEMINI_MODEL`, default 2.5 Flash) |
 | Job Search | Adzuna API (with mock fallback) |
 | Deployment | Docker Compose |
 
@@ -156,6 +156,36 @@ alembic downgrade -1
 1. Import GitHub repo on vercel.com
 2. Set root to `frontend/`, build command `npm run build`, output `dist`
 3. Add env var: `VITE_API_URL=https://your-railway-backend.up.railway.app`
+
+## Known Issues & Security
+
+> Tracked but **not yet fixed** (deliberately deferred). Running local-only for now.
+
+### ⚠️ Deploy-host mismatch (unresolved)
+
+The repo disagrees on where the backend is hosted:
+
+| Config | Points backend at |
+|--------|-------------------|
+| `railway.toml` + the Deployment section above | **Railway** (Dockerfile deploy) |
+| `frontend/.env.production` + `vercel.json` | **Render** (`career-platform-rtdk.onrender.com`) |
+
+Harmless while running locally, but **before deploying, pick one host** and make
+all four consistent:
+- **If Railway:** set `frontend/.env.production` → `VITE_API_URL=https://<your-app>.up.railway.app/` and update the `vercel.json` rewrite destination to the same host.
+- **If Render:** delete `railway.toml` and update the Deployment section above.
+
+### 🔒 Security (deferred)
+
+Several API routes trust a client-supplied `user_id` with no ownership check, some
+are fully unauthenticated (IDOR), and the default `SECRET_KEY` is a placeholder.
+The app runs and all tests pass, but **do not expose it publicly** until these are
+addressed. Full details + recommended fixes: [`SECURITY_NOTES.md`](SECURITY_NOTES.md).
+
+### 🛠 Maintenance
+
+- `google-generativeai` is deprecated (SDK sunset by Google). Current code works,
+  but plan a migration to the `google-genai` SDK for future updates.
 
 ## Resume Bullets (use these after building)
 

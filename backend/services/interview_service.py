@@ -2,7 +2,7 @@ import google.generativeai as genai
 from backend.config import settings
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
-_model = genai.GenerativeModel("gemini-1.5-flash")
+_model = genai.GenerativeModel(settings.GEMINI_MODEL)
 
 QUESTION_TYPES = {
     "behavioral":  "Behavioral (STAR-format) questions about past experience",
@@ -50,7 +50,18 @@ Respond ONLY in this JSON format (no markdown, no backticks):
             if text.startswith("json"):
                 text = text[4:]
         import json
-        return json.loads(text.strip())
+        data = json.loads(text.strip())
+        # Guard against valid-JSON-but-wrong-shape LLM output: a malformed
+        # payload should fall back to canned questions, not 500 on response
+        # validation. Require a non-empty list of items with the expected keys.
+        if not isinstance(data, list) or not data:
+            raise ValueError("LLM did not return a question list")
+        for item in data:
+            if not isinstance(item, dict) or not all(
+                k in item for k in ("question", "ideal_answer_framework", "difficulty")
+            ):
+                raise ValueError("LLM question item missing required fields")
+        return data[:count]
     except Exception as e:
         print(f"[Interview] Question generation error: {e}")
         return _fallback_questions(job_title, question_type, count)
@@ -89,7 +100,19 @@ Evaluate the answer and respond ONLY in this JSON format (no markdown, no backti
             if text.startswith("json"):
                 text = text[4:]
         import json
-        return json.loads(text.strip())
+        data = json.loads(text.strip())
+        # Coerce/validate so a valid-JSON-but-wrong-shape payload falls back
+        # instead of 500ing on response validation. Gemini often returns the
+        # score as a string or a decimal ("8.5") — normalize it to a number.
+        required = (
+            "score", "score_out_of", "strengths",
+            "improvements", "sample_better_answer", "verdict",
+        )
+        if not isinstance(data, dict) or not all(k in data for k in required):
+            raise ValueError("LLM evaluation missing required fields")
+        data["score"] = float(data["score"])
+        data["score_out_of"] = int(data["score_out_of"])
+        return data
     except Exception as e:
         print(f"[Interview] Evaluation error: {e}")
         return {

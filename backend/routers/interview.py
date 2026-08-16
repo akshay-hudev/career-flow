@@ -31,7 +31,7 @@ class QuestionOut(BaseModel):
 
 
 class EvaluationOut(BaseModel):
-    score: int
+    score: float
     score_out_of: int
     strengths: list
     improvements: list

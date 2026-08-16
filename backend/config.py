@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     # Gemini
     GEMINI_API_KEY: str = ""
+    # Model is configurable so a retired model can be swapped without a code change.
+    GEMINI_MODEL: str = "gemini-2.5-flash"
 
     # Adzuna Job Search API (free tier)
     ADZUNA_APP_ID: str = ""

@@ -8,8 +8,8 @@ These helpers are imported by backend/routers/auth.py and backend/dependencies.p
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
+import bcrypt
 from jose import jwt
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from backend.config import settings
@@ -18,12 +18,20 @@ from backend.models.models import User
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# bcrypt only uses the first 72 bytes of a password, and bcrypt >= 5 raises
+# instead of silently truncating — so we truncate explicitly. We call bcrypt
+# directly rather than through passlib, which is unmaintained and crashes on
+# bcrypt >= 5 (its backend probe hashes a >72-byte string at import time).
+_BCRYPT_MAX_BYTES = 72
+
+
+def _pw_bytes(password: str) -> bytes:
+    return password.encode("utf-8")[:_BCRYPT_MAX_BYTES]
 
 
 def hash_password(password: str) -> str:
     """Hash a plaintext password with bcrypt."""
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(_pw_bytes(password), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: Optional[str]) -> bool:
@@ -31,7 +39,7 @@ def verify_password(plain_password: str, hashed_password: Optional[str]) -> bool
     if not hashed_password:
         return False
     try:
-        return pwd_context.verify(plain_password, hashed_password)
+        return bcrypt.checkpw(_pw_bytes(plain_password), hashed_password.encode("utf-8"))
     except Exception:
         return False
 

@@ -34,7 +34,13 @@ async def upload_resume(
         raise HTTPException(status_code=400, detail="File too large. Max 5MB.")
 
     # Parse resume
-    raw_text, parsed_data, ats_score = parse_resume(file_bytes, file.filename)
+    try:
+        raw_text, parsed_data, ats_score = parse_resume(file_bytes, file.filename)
+    except Exception:
+        raise HTTPException(
+            status_code=422,
+            detail="Uploaded file is not a readable PDF.",
+        )
 
     if not raw_text.strip():
         raise HTTPException(status_code=422, detail="Could not extract text from PDF.")
