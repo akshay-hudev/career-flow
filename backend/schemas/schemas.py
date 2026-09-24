@@ -15,8 +15,6 @@ class UserLogin(BaseModel):
     password: str
 
 class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
     user: "UserOut"
 
 # ── User Schemas ──────────────────────────────────────────────────────────────
@@ -29,8 +27,6 @@ class UserOut(BaseModel):
     id: int
     email: str
     name: str
-    created_at: datetime
-
     class Config:
         from_attributes = True
 
@@ -63,7 +59,6 @@ class JobSearchRequest(BaseModel):
     results: int = 20
 
 class JobResult(BaseModel):
-    external_id: str
     title: str
     company: Optional[str]
     location: Optional[str]
@@ -76,7 +71,6 @@ class JobResult(BaseModel):
 class JobSearchResponse(BaseModel):
     query: str
     location: str
-    total: int
     jobs: List[JobResult]
 
 
@@ -87,7 +81,6 @@ class MatchRequest(BaseModel):
     job_descriptions: List[str]
 
 class MatchResult(BaseModel):
-    index: int
     score: float
     skill_gaps: List[str]
     matched_skills: List[str]
@@ -126,10 +119,6 @@ class SavedJobOut(BaseModel):
     saved_at: datetime
     applied_at: Optional[datetime]
 
-    class Config:
-        from_attributes = True
-
-
 # ── Career Advice Schema ──────────────────────────────────────────────────────
 
 class CareerAdviceRequest(BaseModel):
@@ -141,6 +130,3 @@ class CareerAdviceResponse(BaseModel):
     ats_score: float
     skill_gaps: List[str]
     matched_skills: List[str]
-    improvement_suggestions: List[str]
-    cover_letter_draft: str
-    interview_tips: List[str]

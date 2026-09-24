@@ -44,13 +44,6 @@ def override_get_current_user():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def setup_test_db():
-    """Create all tables before tests, drop after."""
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
-
-
 @pytest.fixture()
 def db():
     """Fresh DB session per test."""

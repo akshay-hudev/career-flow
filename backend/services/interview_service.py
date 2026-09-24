@@ -125,22 +125,3 @@ Evaluate the answer and respond ONLY in this JSON format (no markdown, no backti
         }
 
 
-def _fallback_questions(job_title: str, q_type: str, count: int) -> list[dict]:
-    base = [
-        {"question": f"Tell me about a challenging project you worked on as a {job_title}.",
-         "ideal_answer_framework": "Use STAR: Situation, Task, Action, Result. Quantify impact.",
-         "difficulty": "medium"},
-        {"question": "How do you handle tight deadlines and competing priorities?",
-         "ideal_answer_framework": "Describe a prioritization framework you use with a real example.",
-         "difficulty": "easy"},
-        {"question": "Describe a time you disagreed with a technical decision. What did you do?",
-         "ideal_answer_framework": "Show maturity: raised concerns professionally, backed with data.",
-         "difficulty": "medium"},
-        {"question": "What is your biggest technical weakness and how are you addressing it?",
-         "ideal_answer_framework": "Be honest. Mention active steps: courses, projects, mentorship.",
-         "difficulty": "easy"},
-        {"question": "Where do you see yourself in 3 years?",
-         "ideal_answer_framework": "Align growth with the company's trajectory. Show ambition.",
-         "difficulty": "easy"},
-    ]
-    return base[:count]

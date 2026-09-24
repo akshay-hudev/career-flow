@@ -29,23 +29,9 @@ class EvaluateAnswerRequest(BaseModel):
 class QuestionOut(BaseModel):
     question: str
     ideal_answer_framework: str
-    difficulty: str
-
-
 class EvaluationOut(BaseModel):
     score: float
-    score_out_of: int
-    strengths: list
-    improvements: list
-    sample_better_answer: str
-    verdict: str
-
-
 @router.post("/questions", response_model=list[QuestionOut])
-async def get_questions(
-    request: GenerateQuestionsRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Generate tailored interview questions (auth required; resume must be owned by caller)."""
     if request.count < 1 or request.count > 10:
@@ -67,7 +53,6 @@ async def get_questions(
     return questions
 
 
-@router.post("/evaluate", response_model=EvaluationOut)
 async def evaluate(
     request: EvaluateAnswerRequest,
     current_user: User = Depends(get_current_user),

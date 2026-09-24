@@ -12,27 +12,10 @@ router = APIRouter(prefix="/api/v1/agent", tags=["Agent"])
 
 
 class AgentResponse(BaseModel):
-    steps_completed: list
     ats_score: Optional[float]
-    top_job_title: Optional[str]
-    top_job_company: Optional[str]
-    top_job_match_score: Optional[float]
-    ranked_jobs: list
-    parsed_skills: list
     skill_gaps: list
     matched_skills: list
-    improvement_suggestions: list
-    cover_letter_draft: Optional[str]
-    interview_tips: list
-    error: Optional[str]
-
-
 @router.post("/run", response_model=AgentResponse)
-async def run_agent(
-    file: UploadFile = File(...),
-    job_query: str = Query(..., description="e.g. 'Backend Engineer'"),
-    location: str = Query(default="India"),
-    current_user: User = Depends(get_current_user),
 ):
     """One-shot LangGraph career agent (auth required to prevent anonymous
     abuse of the Gemini/Adzuna quota)."""

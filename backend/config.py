@@ -36,9 +36,6 @@ class Settings(BaseSettings):
     # gets a chance to handle it.
     CORS_ORIGINS: str = "*"
 
-    class Config:
-        env_file = ".env"
-
     def parse_cors_origins(self) -> list[str]:
         """Read CORS_ORIGINS from a JSON list or comma-separated string."""
         raw = self.CORS_ORIGINS.strip()
