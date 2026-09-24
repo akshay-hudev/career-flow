@@ -23,10 +23,6 @@ def _get_owned_resume(db: Session, resume_id: int, user_id: int) -> Resume:
 
 
 @router.post("/upload", response_model=ResumeOut)
-async def upload_resume(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Upload a PDF resume. Returns parsed data, ATS score, and extracted skills."""
     user_id = current_user.id
@@ -69,9 +65,6 @@ async def upload_resume(
 
 
 @router.get("/list", response_model=List[ResumeOut])
-def list_my_resumes(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """List the caller's resumes (auth required; ignores any client-supplied user_id)."""
     return (
@@ -83,20 +76,12 @@ def list_my_resumes(
 
 
 @router.get("/{resume_id}", response_model=ResumeOut)
-def get_resume(
-    resume_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Get a single resume by ID (auth required, owner-only)."""
     return _get_owned_resume(db, resume_id, current_user.id)
 
 
 @router.delete("/{resume_id}")
-def delete_resume(
-    resume_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Delete a resume (auth required, owner-only)."""
     resume = _get_owned_resume(db, resume_id, current_user.id)

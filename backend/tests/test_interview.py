@@ -26,10 +26,6 @@ def _make_resume(client, user_id: int = None) -> int:
     return res.json()["id"]
 
 
-MOCK_QUESTIONS = [
-    {"question": "Tell me about a Python project.", "ideal_answer_framework": "Use STAR.", "difficulty": "medium"},
-    {"question": "How do you handle deadlines?", "ideal_answer_framework": "Describe a process.", "difficulty": "easy"},
-    {"question": "Explain async in Python.", "ideal_answer_framework": "asyncio, await, event loop.", "difficulty": "hard"},
 ]
 
 MOCK_EVALUATION = {
@@ -113,8 +109,6 @@ class TestEvaluateAnswer:
     def test_returns_evaluation_fields(self, client):
         with mock.patch("backend.services.interview_service._model") as m:
             import json
-            m.generate_content.return_value = mock.MagicMock(
-                text=json.dumps(MOCK_EVALUATION)
             )
             res = client.post("/api/v1/interview/evaluate", json={
                 "question": "Tell me about a Python project you built.",
@@ -144,7 +138,6 @@ class TestEvaluateAnswer:
 
     def test_falls_back_on_llm_error(self, client):
         with mock.patch("backend.services.interview_service._model") as m:
-            m.generate_content.side_effect = Exception("LLM down")
             res = client.post("/api/v1/interview/evaluate", json={
                 "question": "Describe a challenging project.",
                 "user_answer": "I worked on a distributed system that handled real-time data processing for millions of users using Kafka and Redis.",

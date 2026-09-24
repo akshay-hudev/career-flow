@@ -11,7 +11,6 @@ from backend.dependencies import get_current_user
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
 
 
-@router.post("/register", response_model=Token)
 def register(data: UserRegister, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
@@ -32,7 +31,6 @@ def register(data: UserRegister, db: Session = Depends(get_db)):
     return Token(access_token=token, user=UserOut.model_validate(user))
 
 
-@router.post("/login", response_model=Token)
 def login(data: UserLogin, db: Session = Depends(get_db)):
     user = authenticate_user(db, data.email, data.password)
     if not user:
@@ -44,6 +42,5 @@ def login(data: UserLogin, db: Session = Depends(get_db)):
     return Token(access_token=token, user=UserOut.model_validate(user))
 
 
-@router.get("/me", response_model=UserOut)
 def me(current_user: User = Depends(get_current_user)):
     return current_user

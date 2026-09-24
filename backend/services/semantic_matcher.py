@@ -29,10 +29,6 @@ def cosine_similarity_score(emb1: list[float], emb2: list[float]) -> float:
     return round(float(score) * 100, 2)
 
 
-def get_model():
-    return _vectorizer
-
-
 def extract_skills_from_text(text: str) -> set[str]:
     """Extract skill keywords from any text."""
     text_lower = text.lower()

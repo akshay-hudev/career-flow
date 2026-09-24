@@ -9,9 +9,7 @@ and accumulates results at each step. This is production-grade agentic AI,
 not a single LLM call.
 """
 
-from typing import TypedDict, Optional, Annotated
 from langgraph.graph import StateGraph, END
-from langgraph.graph.message import add_messages
 import asyncio
 
 from backend.services.resume_parser import parse_resume
@@ -36,15 +34,10 @@ class CareerAgentState(TypedDict):
     ats_score: Optional[float]
     embedding: Optional[list]
     jobs: Optional[list]
-    ranked_jobs: Optional[list]
     top_job: Optional[dict]
     advice: Optional[dict]
 
     # Errors
-    error: Optional[str]
-    steps_completed: list
-
-
 # ── Nodes ─────────────────────────────────────────────────────────────────────
 
 def node_parse_resume(state: CareerAgentState) -> CareerAgentState:

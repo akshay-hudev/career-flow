@@ -23,10 +23,6 @@ def _get_owned_resume(db: Session, resume_id: int, user_id: int) -> Resume:
 
 
 @router.post("/score", response_model=MatchResponse)
-def score_matches(
-    request: MatchRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Score the caller's resume against multiple job descriptions (auth required)."""
     resume = _get_owned_resume(db, request.resume_id, current_user.id)
@@ -47,10 +43,6 @@ def score_matches(
 
 
 @router.post("/advice", response_model=CareerAdviceResponse)
-async def get_career_advice(
-    request: CareerAdviceRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Full AI-powered career advice for the caller's resume vs a specific job."""
     resume = _get_owned_resume(db, request.resume_id, current_user.id)

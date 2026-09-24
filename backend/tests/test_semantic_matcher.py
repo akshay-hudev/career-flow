@@ -84,11 +84,7 @@ class TestRankJobs:
         with mock.patch("backend.services.semantic_matcher.get_model") as mock_model:
             mock_instance = mock.MagicMock()
             # Return slightly different embeddings to get different scores
-            mock_instance.encode.side_effect = lambda texts, **kwargs: [
-                [0.9 if "python" in t.lower() else 0.1] * 384 for t in texts
             ]
-            mock_model.return_value = mock_instance
-
             ranked = rank_jobs(
                 resume_text="Python developer",
                 resume_embedding=fake_emb,

@@ -42,10 +42,5 @@ app.include_router(interview.router)
 app.include_router(auth.router)
 
 @app.get("/")
-def root():
-    return {"status": "ok", "message": "Career Platform API is running."}
-
-
-@app.get("/health")
 def health():
     return {"status": "healthy"}

@@ -87,10 +87,6 @@ class TestCareerAdvice:
         with mock.patch("backend.services.semantic_matcher.get_model") as m:
             m.return_value = mock.MagicMock(encode=mock.MagicMock(return_value=[0.1] * 384))
             with mock.patch("backend.services.llm_service._model") as llm:
-                llm.generate_content.return_value = mock.MagicMock(text='''{
-                    "improvement_suggestions": ["Add metrics to your bullets.", "Tailor for the role."],
-                    "cover_letter_draft": "Dear Hiring Manager,\\n\\nI am interested in this role.\\n\\nSincerely,\\nTest",
-                    "interview_tips": ["Research the company.", "Prepare STAR answers."]
                 }''')
 
                 res = client.post("/api/v1/match/advice", json={

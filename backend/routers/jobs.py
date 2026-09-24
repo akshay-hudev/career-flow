@@ -51,10 +51,6 @@ async def search(
 
 
 @router.post("/save", response_model=SavedJobOut)
-def save_job(
-    request: SaveJobRequest,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Save a job to the caller's board (owner is taken from the JWT)."""
     existing = db.query(SavedJob).filter(
@@ -84,10 +80,6 @@ def save_job(
 
 
 @router.get("/saved", response_model=List[SavedJobOut])
-def get_my_saved_jobs(
-    status: Optional[str] = Query(None),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Get the caller's saved jobs, optionally filtered by status."""
     query = db.query(SavedJob).filter(SavedJob.user_id == current_user.id)
@@ -97,11 +89,6 @@ def get_my_saved_jobs(
 
 
 @router.patch("/saved/{job_id}/status", response_model=SavedJobOut)
-def update_status(
-    job_id: int,
-    update: UpdateJobStatus,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Update a saved job's application status (auth required, owner-only)."""
     job = _get_owned_saved_job(db, job_id, current_user.id)
@@ -119,10 +106,6 @@ def update_status(
 
 
 @router.delete("/saved/{job_id}")
-def delete_saved_job(
-    job_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
     """Remove a saved job (auth required, owner-only)."""
     job = _get_owned_saved_job(db, job_id, current_user.id)

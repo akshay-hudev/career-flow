@@ -3,15 +3,11 @@ from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
-from pptx.enum.dml import MSO_LINE_DASH_STYLE
-
-
 OUT = "Capabl_Job_Search_AI_Agent_Final.pptx"
 
 W, H = 13.333, 7.5
 
 NAVY = "0B1020"
-NAVY_2 = "11182B"
 INK = "111827"
 SLATE = "475569"
 MUTED = "64748B"
@@ -39,11 +35,9 @@ def add_text(slide, text, x, y, w, h, size=18, color=INK, bold=False,
     tf = box.text_frame
     tf.clear()
     tf.word_wrap = True
-    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(margin)
     tf.vertical_anchor = valign
     p = tf.paragraphs[0]
     p.alignment = align
-    p.line_spacing = linespacing
     run = p.add_run()
     run.text = text
     run.font.name = font
@@ -58,10 +52,6 @@ def add_rich_text(slide, runs, x, y, w, h, size=18, color=INK,
                   valign=MSO_ANCHOR.TOP, margin=0, align=PP_ALIGN.LEFT):
     box = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
     tf = box.text_frame
-    tf.clear(); tf.word_wrap = True
-    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(margin)
-    tf.vertical_anchor = valign
-    p = tf.paragraphs[0]; p.alignment = align
     for item in runs:
         r = p.add_run(); r.text = item[0]
         r.font.name = "Aptos"; r.font.size = Pt(item[1] if len(item) > 1 else size)
@@ -95,7 +85,6 @@ def circle(slide, x, y, d, fill, line=None, lw=0):
 def line(slide, x1, y1, x2, y2, color=LINE, width=1.5, dash=None):
     s = slide.shapes.add_connector(MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2))
     s.line.color.rgb = rgb(color); s.line.width = Pt(width)
-    if dash: s.line.dash_style = dash
     return s
 
 
@@ -140,15 +129,8 @@ def add_bullet(slide, text, x, y, w, color=SLATE, dot=INDIGO, size=12, bold_lead
 
 
 prs = Presentation()
-prs.slide_width = Inches(W)
-prs.slide_height = Inches(H)
 blank = prs.slide_layouts[6]
 prs.core_properties.title = "Job Search AI Agent — Team QuadCore"
-prs.core_properties.subject = "Capabl project presentation updated from repository implementation"
-prs.core_properties.author = "Team QuadCore"
-prs.core_properties.comments = "Generated as an editable 16:9 deck from the current repository state."
-
-
 # 1 — Cover
 slide = prs.slides.add_slide(blank)
 rect(slide, 0, 0, W, H, NAVY, NAVY)

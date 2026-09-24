@@ -76,8 +76,6 @@ class TestCareerAgent:
     async def test_parse_failure_sets_error(self):
         """If resume parsing fails, error is set and subsequent nodes are skipped."""
         with mock.patch("backend.services.career_agent.parse_resume") as mock_parse:
-            mock_parse.side_effect = Exception("Corrupted PDF")
-
             state = await run_career_agent(
                 file_bytes=b"not a pdf",
                 filename="bad.pdf",
@@ -126,8 +124,6 @@ class TestCareerAgent:
             mock_parse.return_value = ("text", ParsedResume(), 40.0)
             mock_emb.return_value = [0.1] * 384
             mock_search.return_value = []
-            mock_rank.return_value = []
-
             state = await run_career_agent(FAKE_PDF, "resume.pdf", "Rare Job Title", "Antarctica")
 
         assert "generate_advice" not in state["steps_completed"]
